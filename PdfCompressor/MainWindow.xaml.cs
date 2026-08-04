@@ -327,12 +327,21 @@ public partial class MainWindow : Window
         {
             var dlg = new OpenFolderDialog
             {
-                Title = "Choose a folder to save the compressed PDFs",
+                Title = "Choose where to create the output folder",
                 Multiselect = false
             };
 
             if (dlg.ShowDialog(this) == true)
             {
+                var folderName = PromptForFolderName(dlg.FolderName);
+                if (folderName is null)
+                {
+                    return; // cancelled
+                }
+
+                var targetDir = Path.Combine(dlg.FolderName, folderName);
+                Directory.CreateDirectory(targetDir);
+
                 var saved = 0;
                 foreach (var item in ready)
                 {
@@ -340,7 +349,7 @@ public partial class MainWindow : Window
                     {
                         File.Copy(
                             item.ResultPath!,
-                            System.IO.Path.Combine(dlg.FolderName, System.IO.Path.GetFileName(item.ResultPath!)),
+                            Path.Combine(targetDir, Path.GetFileName(item.ResultPath!)),
                             overwrite: true);
                         saved++;
                     }
@@ -352,9 +361,54 @@ public partial class MainWindow : Window
                 }
 
                 StatusText.Text = saved > 0
-                    ? $"Saved {saved} file(s) to: {dlg.FolderName}"
+                    ? $"Saved {saved} file(s) to: {targetDir}"
                     : "No files were saved.";
             }
+        }
+    }
+
+    /// <summary>
+    /// Asks the user to name a new folder that will be created inside
+    /// <paramref name="parentDir"/>. Returns the validated name, or null if cancelled.
+    /// </summary>
+    private string? PromptForFolderName(string parentDir)
+    {
+        var dialog = new FolderNameDialog();
+        while (true)
+        {
+            if (dialog.ShowDialog() != true)
+            {
+                return null;
+            }
+
+            var name = dialog.FolderName.Trim();
+
+            if (name.Length == 0)
+            {
+                MessageBox.Show(this, "Folder name can't be empty.", "PdfCompressor",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                continue;
+            }
+
+            var invalid = Path.GetInvalidFileNameChars();
+            if (name.IndexOfAny(invalid) >= 0)
+            {
+                MessageBox.Show(this,
+                    "Folder name contains characters that aren't allowed in Windows folders.",
+                    "PdfCompressor", MessageBoxButton.OK, MessageBoxImage.Warning);
+                continue;
+            }
+
+            var target = Path.Combine(parentDir, name);
+            if (Directory.Exists(target) || File.Exists(target))
+            {
+                MessageBox.Show(this,
+                    $"A file or folder named \"{name}\" already exists in that location. Pick another name.",
+                    "PdfCompressor", MessageBoxButton.OK, MessageBoxImage.Warning);
+                continue;
+            }
+
+            return name;
         }
     }
 
