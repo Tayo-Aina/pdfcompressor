@@ -373,9 +373,9 @@ public partial class MainWindow : Window
     /// </summary>
     private string? PromptForFolderName(string parentDir)
     {
-        var dialog = new FolderNameDialog();
         while (true)
         {
+            var dialog = new FolderNameDialog();
             if (dialog.ShowDialog() != true)
             {
                 return null;
