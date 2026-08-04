@@ -1,0 +1,22 @@
+<Window x:Class="PdfCompressor.FolderNameDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Name the output folder"
+        Width="420" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        FontFamily="Segoe UI" FontSize="13"
+        Background="#FAFAFB">
+    <StackPanel Margin="20">
+        <TextBlock x:Name="PromptText"
+                   Text="Name the folder where the compressed PDFs will be saved:"
+                   TextWrapping="Wrap" Margin="0,0,0,12"/>
+        <TextBox x:Name="NameBox" Padding="6,5" MaxLength="120"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Cancel" Width="80" Padding="0,5" IsCancel="True"/>
+            <Button Content="Create" Width="80" Padding="0,5" Margin="8,0,0,0"
+                    IsDefault="True" Click="CreateButton_Click"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
