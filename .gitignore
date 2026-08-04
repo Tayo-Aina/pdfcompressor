@@ -1,0 +1,7 @@
+bin/
+obj/
+Standalone/
+publish/
+PdfCompressor/publish/
+.vs/
+*.user
