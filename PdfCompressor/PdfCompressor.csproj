@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    PdfCompressor - self-contained, single-file PDF compressor with a WPF UI.
+    The .NET runtime, Ghostscript.NET and the native Ghostscript engine
+    (gsdll64.dll, embedded as a managed resource) are all baked into ONE exe.
+  -->
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>PdfCompressor</AssemblyName>
+    <RootNamespace>PdfCompressor</RootNamespace>
+    <Version>2.0.0</Version>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+
+    <!-- Single-file, self-contained publishing settings -->
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <DebugType>embedded</DebugType>
+
+    <!-- Trimming is DISABLED: Ghostscript.NET uses reflection and breaks when trimmed. -->
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ghostscript.NET" Version="1.3.3" />
+  </ItemGroup>
+
+  <!-- The Ghostscript engine. Embedded as a resource so the published exe is a true single file;
+       it is extracted to %LOCALAPPDATA%\PdfCompressor at runtime. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\gsdll64.dll">
+      <LogicalName>PdfCompressor.gsdll64.dll</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
