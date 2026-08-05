@@ -6,7 +6,7 @@
         MinHeight="480" MinWidth="560"
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI" FontSize="13"
-        Background="#FAFAFB">
+        Background="{StaticResource Brush.WindowBackground}">
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -20,8 +20,8 @@
         <Border x:Name="DropZone"
                 Grid.Row="0"
                 Height="130" Margin="0,0,0,12"
-                BorderBrush="#3B82F6" BorderThickness="2" CornerRadius="10"
-                Background="#EFF6FF"
+                BorderBrush="{StaticResource Brush.Accent}" BorderThickness="2" CornerRadius="10"
+                Background="{StaticResource Brush.DropZoneBackground}"
                 AllowDrop="True"
                 DragOver="DropZone_DragOver"
                 Drop="DropZone_Drop"
@@ -32,10 +32,10 @@
                 <TextBlock x:Name="DropText"
                            Text="Drag &amp; drop PDF files here"
                            FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"
-                           Foreground="#1F2937" Margin="0,6,0,0"/>
+                           Foreground="{StaticResource Brush.TextPrimary}" Margin="0,6,0,0"/>
                 <TextBlock Text="or click the zone to browse · you can also add a whole folder below"
                            FontSize="11" HorizontalAlignment="Center"
-                           Foreground="#6B7280" Margin="0,4,0,0"/>
+                           Foreground="{StaticResource Brush.TextSecondary}" Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
 
@@ -51,13 +51,18 @@
                  Grid.Row="2"
                  Margin="0,0,0,12"
                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                 BorderBrush="#D1D5DB" BorderThickness="1">
+                 Background="{StaticResource Brush.ListBackground}"
+                 BorderBrush="{StaticResource Brush.ControlBorder}" BorderThickness="1"
+                 Foreground="{StaticResource Brush.TextPrimary}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Margin="2,3">
-                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding Size}" Margin="10,0,0,0" Foreground="#6B7280"/>
-                        <TextBlock Text="{Binding Status}" Margin="14,0,0,0" Foreground="{Binding StatusBrush}"/>
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"
+                                   Foreground="{StaticResource Brush.TextPrimary}"/>
+                        <TextBlock Text="{Binding Size}" Margin="10,0,0,0"
+                                   Foreground="{StaticResource Brush.TextSecondary}"/>
+                        <TextBlock Text="{Binding Status}" Margin="14,0,0,0"
+                                   Foreground="{Binding StatusBrush}"/>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
@@ -65,8 +70,12 @@
 
         <!-- Controls row -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12">
-            <TextBlock Text="Preset:" VerticalAlignment="Center"/>
-            <ComboBox x:Name="PresetBox" Width="160" Margin="8,0,0,0" SelectedIndex="1">
+            <TextBlock Text="Preset:" VerticalAlignment="Center"
+                       Foreground="{StaticResource Brush.TextPrimary}"/>
+            <ComboBox x:Name="PresetBox" Width="160" Margin="8,0,0,0" SelectedIndex="1"
+                      Background="{StaticResource Brush.ControlBackground}"
+                      Foreground="{StaticResource Brush.TextPrimary}"
+                      BorderBrush="{StaticResource Brush.ControlBorder}">
                 <ComboBoxItem Content="Screen (smallest file)"/>
                 <ComboBoxItem Content="Ebook (balanced)"/>
                 <ComboBoxItem Content="Printer (best quality)"/>
@@ -84,9 +93,11 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
-                <ProgressBar x:Name="Progress" Height="18" Margin="0,0,0,6"/>
+                <ProgressBar x:Name="Progress" Height="18" Margin="0,0,0,6"
+                             Foreground="{StaticResource Brush.Accent}"
+                             Background="{StaticResource Brush.ProgressBackground}"/>
                 <TextBlock x:Name="StatusText" Text="Drop PDFs or add files to begin."
-                           Foreground="#6B7280" TextWrapping="Wrap"/>
+                           Foreground="{StaticResource Brush.TextSecondary}" TextWrapping="Wrap"/>
             </StackPanel>
         </Grid>
     </Grid>
