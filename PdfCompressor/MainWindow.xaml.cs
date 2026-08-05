@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Win32;
 
 namespace PdfCompressor;
@@ -11,7 +12,7 @@ namespace PdfCompressor;
 public sealed class FileItem : INotifyPropertyChanged
 {
     private string _status = "Pending";
-    private string _statusBrush = "#6B7280";
+    private Brush _statusBrush = Brushes.Gray;
 
     public FileItem(string path)
     {
@@ -36,12 +37,12 @@ public sealed class FileItem : INotifyPropertyChanged
         }
     }
 
-    public string StatusBrush
+    public Brush StatusBrush
     {
         get => _statusBrush;
         set
         {
-            if (_statusBrush != value)
+            if (!Equals(_statusBrush, value))
             {
                 _statusBrush = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusBrush)));
@@ -75,6 +76,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ThemeButton.Click += ThemeButton_Click;
+        UpdateThemeButtonLabel();
         FileList.ItemsSource = _files;
 
         _resultDir = Path.Combine(Path.GetTempPath(), "PdfCompressorResults");
@@ -161,6 +164,26 @@ public partial class MainWindow : Window
         AddFilesButton_Click(sender, e);
     }
 
+    // ---- Theme toggle ----
+
+    private void ThemeButton_Click(object sender, RoutedEventArgs e)
+    {
+        ThemeManager.Toggle();
+        UpdateThemeButtonLabel();
+    }
+
+    private void UpdateThemeButtonLabel()
+    {
+        ThemeButton.Content = ThemeManager.IsDark ? "☀ Light" : "☾ Dark";
+    }
+
+    /// <summary>Looks up a brush from Application resources, or falls back to a safe gray.</summary>
+    private static Brush GetBrush(string key)
+    {
+        var brush = Application.Current.Resources[key] as Brush;
+        return brush ?? new SolidColorBrush(Colors.Gray);
+    }
+
     // ---- Browse buttons ----
 
     private void AddFilesButton_Click(object sender, RoutedEventArgs e)
@@ -240,7 +263,7 @@ public partial class MainWindow : Window
             {
                 var item = _files[i];
                 item.Status = "Compressing…";
-                item.StatusBrush = "#60A5FA";
+                item.StatusBrush = GetBrush("Brush.StatusBlue");
                 Progress.Value = total == 1 ? 5 : i * 100.0 / total;
                 StatusText.Text = $"Compressing {i + 1} of {total}: {item.Name}…";
 
@@ -257,20 +280,20 @@ public partial class MainWindow : Window
                     {
                         item.ResultPath = result.OutputPath;
                         item.Status = $"Done — {FileItem.FormatSize(result.OriginalSize)} → {FileItem.FormatSize(result.CompressedSize)} (−{result.SavingsPercent:0.0}%)";
-                        item.StatusBrush = "#4ADE80";
+                        item.StatusBrush = GetBrush("Brush.StatusGreen");
                         ready++;
                     }
                     else
                     {
                         TryDelete(result.OutputPath);
                         item.Status = "No gain (already optimized)";
-                        item.StatusBrush = "#9CA3AF";
+                        item.StatusBrush = GetBrush("Brush.StatusGray");
                     }
                 }
                 catch (Exception ex)
                 {
                     item.Status = "Failed: " + ex.Message;
-                    item.StatusBrush = "#F87171";
+                    item.StatusBrush = GetBrush("Brush.StatusRed");
                 }
             }
 
