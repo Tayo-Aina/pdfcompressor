@@ -44,6 +44,7 @@
             <Button x:Name="AddFilesButton" Content="Add PDF file(s)…" Padding="12,6" Click="AddFilesButton_Click"/>
             <Button x:Name="AddFolderButton" Content="Add folder…" Padding="12,6" Margin="8,0,0,0" Click="AddFolderButton_Click"/>
             <Button x:Name="ClearButton" Content="Clear list" Padding="12,6" Margin="8,0,0,0" Click="ClearButton_Click"/>
+            <Button x:Name="ThemeButton" Content="☾ Dark" Padding="12,6" Margin="8,0,0,0" Click="ThemeButton_Click"/>
         </StackPanel>
 
         <!-- File list -->
@@ -72,14 +73,92 @@
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12">
             <TextBlock Text="Preset:" VerticalAlignment="Center"
                        Foreground="{StaticResource Brush.TextPrimary}"/>
-            <ComboBox x:Name="PresetBox" Width="160" Margin="8,0,0,0" SelectedIndex="1"
+
+            <ComboBox x:Name="PresetBox" Width="170" Margin="8,0,0,0" SelectedIndex="1"
                       Background="{StaticResource Brush.ControlBackground}"
                       Foreground="{StaticResource Brush.TextPrimary}"
-                      BorderBrush="{StaticResource Brush.ControlBorder}">
+                      BorderBrush="{StaticResource Brush.ControlBorder}"
+                      BorderThickness="1">
+                <ComboBox.Resources>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
+                        <Setter Property="Background" Value="{StaticResource Brush.ControlBackground}"/>
+                        <Setter Property="Padding" Value="8,5"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Background" Value="{StaticResource Brush.ButtonHover}"/>
+                                <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.Resources>
+                <ComboBox.Template>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="toggle"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="bd"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ContentPresenter VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                                <Path Grid.Column="1"
+                                                      Data="M 0 0 L 4 4 L 8 0 Z"
+                                                      Fill="{StaticResource Brush.TextSecondary}"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,8,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="{StaticResource Brush.ButtonHover}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="{StaticResource Brush.ButtonPressed}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
+                                   AllowsTransparency="True" PopupAnimation="Slide">
+                                <Border x:Name="dropDownBorder"
+                                        Background="{StaticResource Brush.SurfaceBackground}"
+                                        BorderBrush="{StaticResource Brush.ControlBorder}"
+                                        BorderThickness="1" CornerRadius="4"
+                                        MinWidth="{TemplateBinding ActualWidth}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter Property="Background" Value="{StaticResource Brush.ButtonPressed}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ComboBox.Template>
                 <ComboBoxItem Content="Screen (smallest file)"/>
                 <ComboBoxItem Content="Ebook (balanced)"/>
                 <ComboBoxItem Content="Printer (best quality)"/>
             </ComboBox>
+
             <Button x:Name="CompressButton" Content="Compress" Padding="20,7" Margin="16,0,0,0"
                     FontWeight="Bold" Click="CompressButton_Click"/>
             <Button x:Name="SaveButton" Content="Save…" Padding="20,7" Margin="10,0,0,0"
