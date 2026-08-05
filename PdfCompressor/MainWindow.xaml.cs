@@ -240,7 +240,7 @@ public partial class MainWindow : Window
             {
                 var item = _files[i];
                 item.Status = "Compressing…";
-                item.StatusBrush = "#2563EB";
+                item.StatusBrush = "#60A5FA";
                 Progress.Value = total == 1 ? 5 : i * 100.0 / total;
                 StatusText.Text = $"Compressing {i + 1} of {total}: {item.Name}…";
 
@@ -257,7 +257,7 @@ public partial class MainWindow : Window
                     {
                         item.ResultPath = result.OutputPath;
                         item.Status = $"Done — {FileItem.FormatSize(result.OriginalSize)} → {FileItem.FormatSize(result.CompressedSize)} (−{result.SavingsPercent:0.0}%)";
-                        item.StatusBrush = "#16A34A";
+                        item.StatusBrush = "#4ADE80";
                         ready++;
                     }
                     else
@@ -270,7 +270,7 @@ public partial class MainWindow : Window
                 catch (Exception ex)
                 {
                     item.Status = "Failed: " + ex.Message;
-                    item.StatusBrush = "#DC2626";
+                    item.StatusBrush = "#F87171";
                 }
             }
 
