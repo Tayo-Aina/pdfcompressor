@@ -76,7 +76,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        ThemeButton.Click += ThemeButton_Click;
         UpdateThemeButtonLabel();
         FileList.ItemsSource = _files;
 
