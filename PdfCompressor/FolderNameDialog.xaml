@@ -7,12 +7,17 @@
         ResizeMode="NoResize"
         ShowInTaskbar="False"
         FontFamily="Segoe UI" FontSize="13"
-        Background="#FAFAFB">
+        Background="{StaticResource Brush.WindowBackground}">
     <StackPanel Margin="20">
         <TextBlock x:Name="PromptText"
                    Text="Name the folder where the compressed PDFs will be saved:"
-                   TextWrapping="Wrap" Margin="0,0,0,12"/>
-        <TextBox x:Name="NameBox" Padding="6,5" MaxLength="120"/>
+                   TextWrapping="Wrap" Margin="0,0,0,12"
+                   Foreground="{StaticResource Brush.TextPrimary}"/>
+        <TextBox x:Name="NameBox" Padding="6,5" MaxLength="120"
+                 Background="{StaticResource Brush.ControlBackground}"
+                 Foreground="{StaticResource Brush.TextPrimary}"
+                 BorderBrush="{StaticResource Brush.ControlBorder}"
+                 CaretBrush="{StaticResource Brush.TextPrimary}"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button Content="Cancel" Width="80" Padding="0,5" IsCancel="True"/>
             <Button Content="Create" Width="80" Padding="0,5" Margin="8,0,0,0"
