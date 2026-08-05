@@ -6,7 +6,7 @@
         MinHeight="480" MinWidth="560"
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI" FontSize="13"
-        Background="{StaticResource Brush.WindowBackground}">
+        Background="{DynamicResource Brush.WindowBackground}">
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -20,8 +20,8 @@
         <Border x:Name="DropZone"
                 Grid.Row="0"
                 Height="130" Margin="0,0,0,12"
-                BorderBrush="{StaticResource Brush.Accent}" BorderThickness="2" CornerRadius="10"
-                Background="{StaticResource Brush.DropZoneBackground}"
+                BorderBrush="{DynamicResource Brush.Accent}" BorderThickness="2" CornerRadius="10"
+                Background="{DynamicResource Brush.DropZoneBackground}"
                 AllowDrop="True"
                 DragOver="DropZone_DragOver"
                 Drop="DropZone_Drop"
@@ -32,10 +32,10 @@
                 <TextBlock x:Name="DropText"
                            Text="Drag &amp; drop PDF files here"
                            FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"
-                           Foreground="{StaticResource Brush.TextPrimary}" Margin="0,6,0,0"/>
+                           Foreground="{DynamicResource Brush.TextPrimary}" Margin="0,6,0,0"/>
                 <TextBlock Text="or click the zone to browse · you can also add a whole folder below"
                            FontSize="11" HorizontalAlignment="Center"
-                           Foreground="{StaticResource Brush.TextSecondary}" Margin="0,4,0,0"/>
+                           Foreground="{DynamicResource Brush.TextSecondary}" Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
 
@@ -52,16 +52,16 @@
                  Grid.Row="2"
                  Margin="0,0,0,12"
                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                 Background="{StaticResource Brush.ListBackground}"
-                 BorderBrush="{StaticResource Brush.ControlBorder}" BorderThickness="1"
-                 Foreground="{StaticResource Brush.TextPrimary}">
+                 Background="{DynamicResource Brush.ListBackground}"
+                 BorderBrush="{DynamicResource Brush.ControlBorder}" BorderThickness="1"
+                 Foreground="{DynamicResource Brush.TextPrimary}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Margin="2,3">
                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource Brush.TextPrimary}"/>
+                                   Foreground="{DynamicResource Brush.TextPrimary}"/>
                         <TextBlock Text="{Binding Size}" Margin="10,0,0,0"
-                                   Foreground="{StaticResource Brush.TextSecondary}"/>
+                                   Foreground="{DynamicResource Brush.TextSecondary}"/>
                         <TextBlock Text="{Binding Status}" Margin="14,0,0,0"
                                    Foreground="{Binding StatusBrush}"/>
                     </StackPanel>
@@ -72,22 +72,22 @@
         <!-- Controls row -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12">
             <TextBlock Text="Preset:" VerticalAlignment="Center"
-                       Foreground="{StaticResource Brush.TextPrimary}"/>
+                       Foreground="{DynamicResource Brush.TextPrimary}"/>
 
             <ComboBox x:Name="PresetBox" Width="170" Margin="8,0,0,0" SelectedIndex="1"
-                      Background="{StaticResource Brush.ControlBackground}"
-                      Foreground="{StaticResource Brush.TextPrimary}"
-                      BorderBrush="{StaticResource Brush.ControlBorder}"
+                      Background="{DynamicResource Brush.ControlBackground}"
+                      Foreground="{DynamicResource Brush.TextPrimary}"
+                      BorderBrush="{DynamicResource Brush.ControlBorder}"
                       BorderThickness="1">
                 <ComboBox.Resources>
                     <Style TargetType="ComboBoxItem">
-                        <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
-                        <Setter Property="Background" Value="{StaticResource Brush.ControlBackground}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
+                        <Setter Property="Background" Value="{DynamicResource Brush.ControlBackground}"/>
                         <Setter Property="Padding" Value="8,5"/>
                         <Style.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter Property="Background" Value="{StaticResource Brush.ButtonHover}"/>
-                                <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.ButtonHover}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -117,17 +117,17 @@
                                                 <ContentPresenter VerticalAlignment="Center" Margin="8,0,0,0"/>
                                                 <Path Grid.Column="1"
                                                       Data="M 0 0 L 4 4 L 8 0 Z"
-                                                      Fill="{StaticResource Brush.TextSecondary}"
+                                                      Fill="{DynamicResource Brush.TextSecondary}"
                                                       VerticalAlignment="Center"
                                                       Margin="0,0,8,0"/>
                                             </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="bd" Property="Background" Value="{StaticResource Brush.ButtonHover}"/>
+                                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.ButtonHover}"/>
                                             </Trigger>
                                             <Trigger Property="IsChecked" Value="True">
-                                                <Setter TargetName="bd" Property="Background" Value="{StaticResource Brush.ButtonPressed}"/>
+                                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.ButtonPressed}"/>
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
@@ -136,8 +136,8 @@
                             <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
                                    AllowsTransparency="True" PopupAnimation="Slide">
                                 <Border x:Name="dropDownBorder"
-                                        Background="{StaticResource Brush.SurfaceBackground}"
-                                        BorderBrush="{StaticResource Brush.ControlBorder}"
+                                        Background="{DynamicResource Brush.SurfaceBackground}"
+                                        BorderBrush="{DynamicResource Brush.ControlBorder}"
                                         BorderThickness="1" CornerRadius="4"
                                         MinWidth="{TemplateBinding ActualWidth}"
                                         MaxHeight="{TemplateBinding MaxDropDownHeight}">
@@ -149,7 +149,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsDropDownOpen" Value="True">
-                                <Setter Property="Background" Value="{StaticResource Brush.ButtonPressed}"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.ButtonPressed}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -173,10 +173,10 @@
             </Grid.ColumnDefinitions>
             <StackPanel>
                 <ProgressBar x:Name="Progress" Height="18" Margin="0,0,0,6"
-                             Foreground="{StaticResource Brush.Accent}"
-                             Background="{StaticResource Brush.ProgressBackground}"/>
+                             Foreground="{DynamicResource Brush.Accent}"
+                             Background="{DynamicResource Brush.ProgressBackground}"/>
                 <TextBlock x:Name="StatusText" Text="Drop PDFs or add files to begin."
-                           Foreground="{StaticResource Brush.TextSecondary}" TextWrapping="Wrap"/>
+                           Foreground="{DynamicResource Brush.TextSecondary}" TextWrapping="Wrap"/>
             </StackPanel>
         </Grid>
     </Grid>
