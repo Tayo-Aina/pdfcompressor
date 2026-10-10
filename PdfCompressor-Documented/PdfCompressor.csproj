@@ -1,0 +1,112 @@
+<!-- =========================================================================
+     PdfCompressor.csproj
+     =========================================================================
+     This is the MSBuild project file - the recipe that tells the .NET SDK how
+     to build and publish the app. Every setting below is load-bearing; each
+     one is explained inline.
+
+     BUILD PIPELINE SUMMARY
+       dotnet publish -c Release -o Standalone
+         -> restores NuGet packages (Ghostscript.NET)
+         -> compiles all .cs / .xaml files
+         -> embeds Assets\gsdll64.dll as a managed resource
+         -> bundles EVERYTHING (the .NET runtime, our code, Ghostscript.NET,
+            and the embedded engine DLL) into ONE self-contained exe.
+     ========================================================================= -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    PdfCompressor - self-contained, single-file PDF compressor with a WPF UI.
+    The .NET runtime, Ghostscript.NET and the native Ghostscript engine
+    (gsdll64.dll, embedded as a managed resource) are all baked into ONE exe.
+  -->
+
+  <PropertyGroup>
+    <!-- WinExe = a Windows GUI app (no console window). If this were "Exe" the
+         app would open a black console window alongside the UI. -->
+    <OutputType>WinExe</OutputType>
+
+    <!-- net8.0-windows + UseWPF = we are building a WPF app on .NET 8.
+         The "-windows" suffix grants access to Windows-only APIs (like WPF
+         itself and Microsoft.Win32 dialogs). -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+
+    <!-- ImplicitUsings: automatically adds common using directives
+         (System, System.IO, System.Linq, ...) so source files stay lean. -->
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Nullable: turns on nullable reference types, so the compiler warns
+         about code that might dereference null. -->
+    <Nullable>enable</Nullable>
+
+    <AssemblyName>PdfCompressor</AssemblyName>
+    <RootNamespace>PdfCompressor</RootNamespace>
+
+    <!-- App version. Bump this before publishing a new release - it is also
+         used as the engine cache folder name by NativeLibResolver. -->
+    <Version>2.0.0</Version>
+
+    <!-- InvariantGlobalization=false = keep normal culture formatting
+         (dates, numbers) instead of the invariant culture. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+
+    <!-- Only ship English satellite resources (drops the many localized
+         .NET resource DLLs that we never use, keeping the exe smaller). -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+
+    <!-- =====================================================================
+         SINGLE-FILE, SELF-CONTAINED PUBLISHING
+         These are the settings that make the exe run on ANY Windows 64-bit
+         machine with zero installs:
+         =====================================================================
+         SelfContained    = bundle the .NET runtime INTO the exe (the target
+                            machine does not need .NET installed at all).
+         RuntimeIdentifier= win-x64 pins the target platform to 64-bit Windows.
+         PublishSingleFile= merge everything into one physical .exe file.
+         EnableCompressionInSingleFile = compress the bundled payload so the
+                            exe is a bit smaller (decompressed on first run).
+         IncludeNativeLibrariesForSelfExtract / IncludeAllContentForSelfExtract
+                          = native libraries and content files are written to a
+                            temp folder on first launch instead of being loaded
+                            straight from memory. Required for gsdll64.dll-style
+                            LoadLibrary usage to work in a single-file bundle.
+         ===================================================================== -->
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <DebugType>embedded</DebugType>
+
+    <!-- Trimming is DISABLED: Ghostscript.NET uses reflection at runtime to
+         drive the native library, and the .NET trimmer would strip the code
+         paths it needs - producing a crash-on-start exe. Do not enable. -->
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
+  <!-- =====================================================================
+       NuGet dependencies
+       Ghostscript.NET is the managed wrapper around the native Ghostscript
+       DLL. Version is pinned (not floating) so builds are reproducible.
+       ===================================================================== -->
+  <ItemGroup>
+    <PackageReference Include="Ghostscript.NET" Version="1.3.3" />
+  </ItemGroup>
+
+  <!-- =====================================================================
+       The Ghostscript engine DLL.
+       We EMBED it as a managed resource (instead of copying it beside the exe)
+       so the published output really is ONE file. At runtime,
+       NativeLibResolver extracts it from the resource stream to a temp cache
+       folder and Ghostscript loads it from there.
+       LogicalName is the name used to look it up in GetManifestResourceStream.
+       ===================================================================== -->
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\gsdll64.dll">
+      <LogicalName>PdfCompressor.gsdll64.dll</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

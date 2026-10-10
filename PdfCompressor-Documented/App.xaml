@@ -1,0 +1,114 @@
+<!-- =========================================================================
+     App.xaml
+     =========================================================================
+     The APPLICATION-LEVEL XAML. It defines:
+       1. The Application object itself (x:Class="PdfCompressor.App" ties this
+          markup to App.xaml.cs).
+       2. StartupUri="MainWindow.xaml" - tells WPF which window to open first.
+       3. Application.Resources - the shared resource dictionary.
+
+     THE RESOURCE DICTIONARY IS THE THEME SYSTEM
+     =========================================================================
+     Every color in the app lives HERE as a named SolidColorBrush. The values
+     below are the DARK palette (the default). When the user toggles the theme,
+     ThemeManager replaces these brushes at runtime with the light-palette
+     colors (see ThemeManager.cs) - the XAML files never hardcode a color.
+
+     The global Button style at the bottom is ALSO a resource: any Button in
+     the app that does not override its style automatically picks this one up,
+     which is why every button in the app looks consistent.
+     ========================================================================= -->
+<Application x:Class="PdfCompressor.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+
+        <!-- ===== Dark palette (default). ThemeManager swaps these at runtime. ===== -->
+        <SolidColorBrush x:Key="Brush.WindowBackground" Color="#1E1E1E"/>   <!-- window background          -->
+        <SolidColorBrush x:Key="Brush.SurfaceBackground" Color="#242428"/>  <!-- popups / raised surfaces    -->
+        <SolidColorBrush x:Key="Brush.ControlBackground" Color="#2B2B30"/>  <!-- text boxes, combo boxes     -->
+        <SolidColorBrush x:Key="Brush.ControlBorder" Color="#3F3F46"/>      <!-- control borders             -->
+        <SolidColorBrush x:Key="Brush.ListBackground" Color="#232327"/>     <!-- the file list background    -->
+        <SolidColorBrush x:Key="Brush.ProgressBackground" Color="#33333A"/> <!-- progress bar track          -->
+        <SolidColorBrush x:Key="Brush.DropZoneBackground" Color="#16212E"/> <!-- drag &amp; drop zone        -->
+
+        <SolidColorBrush x:Key="Brush.TextPrimary" Color="#E8EAED"/>        <!-- main text (light on dark)   -->
+        <SolidColorBrush x:Key="Brush.TextSecondary" Color="#9AA0A6"/>      <!-- helper / secondary text     -->
+        <SolidColorBrush x:Key="Brush.TextDisabled" Color="#6B7280"/>       <!-- disabled controls           -->
+
+        <SolidColorBrush x:Key="Brush.Accent" Color="#3B82F6"/>             <!-- brand blue: progress, drop zone border -->
+
+        <!-- Buttons: normal / hover / pressed / disabled -->
+        <SolidColorBrush x:Key="Brush.ButtonBackground" Color="#33333A"/>
+        <SolidColorBrush x:Key="Brush.ButtonHover" Color="#3E3E46"/>
+        <SolidColorBrush x:Key="Brush.ButtonPressed" Color="#2A2A30"/>
+        <SolidColorBrush x:Key="Brush.ButtonDisabled" Color="#26262B"/>
+
+        <!-- Status colors (readable on dark): per-file statuses in the list -->
+        <SolidColorBrush x:Key="Brush.StatusBlue" Color="#60A5FA"/>         <!-- compressing   -->
+        <SolidColorBrush x:Key="Brush.StatusGreen" Color="#4ADE80"/>        <!-- done           -->
+        <SolidColorBrush x:Key="Brush.StatusRed" Color="#F87171"/>          <!-- failed         -->
+        <SolidColorBrush x:Key="Brush.StatusGray" Color="#9CA3AF"/>         <!-- no gain        -->
+
+        <!-- =================================================================
+             Global button style
+             ================================================================
+             TargetType="Button" without a Key means "apply to every Button".
+             The Template replaces WPF's default button chrome with a rounded
+             Border, giving all buttons the same dark look. The triggers handle
+             hover / pressed / disabled states.
+
+             IMPORTANT: DynamicResource (not StaticResource) is used for every
+             brush reference. StaticResource would bake the current brush in
+             once at load; DynamicResource re-resolves whenever ThemeManager
+             swaps the palette, which is what makes the theme toggle work.
+             ================================================================= -->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource Brush.ButtonBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.ControlBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <!-- The visual "shell" of the button. TemplateBinding
+                             pulls values from the Button's own properties
+                             (which the setters above provide). -->
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <!-- ContentPresenter is what actually renders the
+                                 button's label ("Compress", "Save...", ...). -->
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Mouse over -> slightly lighter -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.ButtonHover}"/>
+                            </Trigger>
+                            <!-- Pressed -> slightly darker -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.ButtonPressed}"/>
+                            </Trigger>
+                            <!-- Disabled -> dim background AND dim text so the
+                                 user can tell the button is not clickable -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.ButtonDisabled}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextDisabled}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Application.Resources>
+</Application>

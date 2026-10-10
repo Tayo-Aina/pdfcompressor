@@ -1,0 +1,53 @@
+<!-- =========================================================================
+     FolderNameDialog.xaml
+     =========================================================================
+     A tiny modal dialog: one text box + Cancel/Create buttons. It is shown by
+     MainWindow.PromptForFolderName() when the user saves multiple compressed
+     files and needs to name the new output folder.
+
+     WPF dialog mechanics at a glance:
+       - WindowStartupLocation="CenterOwner" pops it centered over the window
+         that opened it.
+       - ResizeMode="NoResize" + SizeToContent="Height" = it sizes itself to
+         its content and cannot be resized (it's just a prompt).
+       - ShowInTaskbar="False" = no extra taskbar entry for this little window.
+       - The "Create" button: IsDefault="True" means pressing ENTER activates it.
+       - The "Cancel" button: IsCancel="True" means pressing ESC (or clicking)
+         closes the dialog with a "cancelled" result automatically - no code
+         needed for that.
+     ========================================================================= -->
+<Window x:Class="PdfCompressor.FolderNameDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Name the output folder"
+        Width="420" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        FontFamily="Segoe UI" FontSize="13"
+        Background="{DynamicResource Brush.WindowBackground}">
+
+    <StackPanel Margin="20">
+        <!-- The question the user must answer -->
+        <TextBlock x:Name="PromptText"
+                   Text="Name the folder where the compressed PDFs will be saved:"
+                   TextWrapping="Wrap" Margin="0,0,0,12"
+                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+
+        <!-- The input field. MaxLength="120" keeps absurdly long names out.
+             x:Name="NameBox" lets the code-behind read NameBox.Text. -->
+        <TextBox x:Name="NameBox" Padding="6,5" MaxLength="120"
+                 Background="{DynamicResource Brush.ControlBackground}"
+                 Foreground="{DynamicResource Brush.TextPrimary}"
+                 BorderBrush="{DynamicResource Brush.ControlBorder}"
+                 CaretBrush="{DynamicResource Brush.TextPrimary}"/>
+
+        <!-- Buttons pinned to the bottom-right. Create is default (Enter),
+             Cancel is the escape hatch (Esc). -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Cancel" Width="80" Padding="0,5" IsCancel="True"/>
+            <Button Content="Create" Width="80" Padding="0,5" Margin="8,0,0,0"
+                    IsDefault="True" Click="CreateButton_Click"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
