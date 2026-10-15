@@ -18,6 +18,10 @@
     <InvariantGlobalization>false</InvariantGlobalization>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 
+    <!-- Exe / Explorer / taskbar icon (the light variant). The dark variant is
+         embedded as a resource so the window icon can follow the theme. -->
+    <ApplicationIcon>Assets\app-light.ico</ApplicationIcon>
+
     <!-- Single-file, self-contained publishing settings -->
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -41,6 +45,12 @@
     <EmbeddedResource Include="Assets\gsdll64.dll">
       <LogicalName>PdfCompressor.gsdll64.dll</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- App icons, packed into the assembly for the theme-aware window icon. -->
+  <ItemGroup>
+    <Resource Include="Assets\app-dark.ico" />
+    <Resource Include="Assets\app-light.ico" />
   </ItemGroup>
 
 </Project>

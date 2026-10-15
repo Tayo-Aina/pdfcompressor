@@ -8,10 +8,17 @@ public partial class FolderNameDialog : Window
     public FolderNameDialog()
     {
         InitializeComponent();
+        ThemeManager.ApplyWindowIcon(this);
         NameBox.Focus();
     }
 
     public string FolderName => NameBox.Text.Trim();
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        ThemeManager.ApplyWindowChrome(this);
+    }
 
     private void CreateButton_Click(object sender, RoutedEventArgs e)
     {

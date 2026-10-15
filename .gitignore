@@ -7,6 +7,7 @@ Standalone/
 .vs/
 .idea/
 *.user
+*.DotSettings.user
 
 # OS
 Thumbs.db

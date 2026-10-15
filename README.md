@@ -8,6 +8,8 @@ makes your pdfs smaller. drag and drop a pdf, hit compress, pick where to save i
 
 - drag and drop pdfs, or add a whole folder of them
 - 3 presets: screen (smallest), ebook (balanced), printer (keeps quality)
+- also merges pdfs into one, and turns a pile of images into a pdf
+- light & dark theme that follows windows (or click the toggle)
 - the save button stays locked until compression actually finishes
 - one single exe at the end, no installs needed on other machines
 
@@ -34,6 +36,8 @@ powershell -ExecutionPolicy Bypass -File scripts\download-engine.ps1
 ```
 
 then run `build.bat`. it drops the finished exe in `Standalone\`.
+
+the app icon comes in a light and a dark flavour (`PdfCompressor\Assets\app-light.ico` / `app-dark.ico`) — the window icon follows the active theme, the exe always uses the light one. regenerate them with `scripts\make-icons.ps1` if you want to change the look.
 
 ## how it works
 

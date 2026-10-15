@@ -1,6 +1,9 @@
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace PdfCompressor;
 
@@ -9,6 +12,7 @@ namespace PdfCompressor;
 /// Application.Resources. The user's choice is saved to
 /// %APPDATA%\PdfCompressor\theme.txt and restored on next launch.
 /// On first run (no saved setting) it follows the Windows app mode.
+/// Also keeps the window icon and the native title bar in sync with the theme.
 /// </summary>
 public static class ThemeManager
 {
@@ -18,6 +22,9 @@ public static class ThemeManager
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PdfCompressor");
 
     private static readonly string SettingsFile = Path.Combine(SettingsDir, "theme.txt");
+
+    private static BitmapImage? _darkIcon;
+    private static BitmapImage? _lightIcon;
 
     /// <summary>Applies the saved theme (or the OS theme on first run) and returns whether dark is active.</summary>
     public static bool Load()
@@ -80,6 +87,61 @@ public static class ThemeManager
         }
     }
 
+    // ---- Window icon / title bar ----
+
+    /// <summary>Matches the window icon (taskbar + title bar) to the active theme.</summary>
+    public static void ApplyWindowIcon(Window window)
+    {
+        try
+        {
+            window.Icon = IsDark
+                ? _darkIcon ??= LoadIcon("app-dark.ico")
+                : _lightIcon ??= LoadIcon("app-light.ico");
+        }
+        catch
+        {
+            // an icon is decoration — never fail over it
+        }
+    }
+
+    /// <summary>Paints the native title bar dark or light to match the theme (Windows 10 1809+).</summary>
+    public static void ApplyWindowChrome(Window window)
+    {
+        try
+        {
+            var handle = new WindowInteropHelper(window).Handle;
+            if (handle == IntPtr.Zero)
+            {
+                return;
+            }
+
+            var dark = IsDark ? 1 : 0;
+            // DWMWA_USE_IMMERSIVE_DARK_MODE is 20 on current builds, 19 on early ones.
+            if (DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int)) != 0)
+            {
+                DwmSetWindowAttribute(handle, 19, ref dark, sizeof(int));
+            }
+        }
+        catch
+        {
+            // older Windows or a non-DWM session — keep the default title bar
+        }
+    }
+
+    private static BitmapImage LoadIcon(string fileName)
+    {
+        var image = new BitmapImage();
+        image.BeginInit();
+        image.UriSource = new Uri($"pack://application:,,,/Assets/{fileName}", UriKind.Absolute);
+        image.CacheOption = BitmapCacheOption.OnLoad;
+        image.EndInit();
+        image.Freeze();
+        return image;
+    }
+
+    [DllImport("dwmapi.dll", PreserveSig = true)]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
+
     private static void Save(bool dark)
     {
         try
@@ -93,62 +155,78 @@ public static class ThemeManager
         }
     }
 
-    // ---- Palettes ----
+    // ---- Palettes (flat colours, no gradients) ----
 
     private static Dictionary<string, SolidColorBrush> CreateDarkBrushes() => new()
     {
-        ["Brush.WindowBackground"] = Brush("#1E1E1E"),
-        ["Brush.SurfaceBackground"] = Brush("#242428"),
-        ["Brush.ControlBackground"] = Brush("#2B2B30"),
-        ["Brush.ControlBorder"] = Brush("#3F3F46"),
-        ["Brush.ListBackground"] = Brush("#232327"),
-        ["Brush.ProgressBackground"] = Brush("#33333A"),
-        ["Brush.DropZoneBackground"] = Brush("#16212E"),
+        ["Brush.WindowBackground"] = Brush("#17191D"),
+        ["Brush.SurfaceBackground"] = Brush("#1D2025"),
+        ["Brush.ControlBackground"] = Brush("#23262C"),
+        ["Brush.ControlBorder"] = Brush("#31353D"),
+        ["Brush.ListBackground"] = Brush("#1D2025"),
+        ["Brush.ProgressBackground"] = Brush("#262A31"),
+        ["Brush.DropZoneBackground"] = Brush("#1A1F27"),
+        ["Brush.DropZoneBorder"] = Brush("#2E4159"),
 
-        ["Brush.TextPrimary"] = Brush("#E8EAED"),
-        ["Brush.TextSecondary"] = Brush("#9AA0A6"),
-        ["Brush.TextDisabled"] = Brush("#6B7280"),
+        ["Brush.TextPrimary"] = Brush("#E6E8EC"),
+        ["Brush.TextSecondary"] = Brush("#8C93A0"),
+        ["Brush.TextDisabled"] = Brush("#5A6170"),
 
-        ["Brush.Accent"] = Brush("#3B82F6"),
+        ["Brush.Accent"] = Brush("#4C8DF6"),
+        ["Brush.AccentHover"] = Brush("#3F7EE8"),
+        ["Brush.AccentPressed"] = Brush("#3468C9"),
+        ["Brush.OnAccent"] = Brush("#FFFFFF"),
 
-        ["Brush.ButtonBackground"] = Brush("#33333A"),
-        ["Brush.ButtonHover"] = Brush("#3E3E46"),
-        ["Brush.ButtonPressed"] = Brush("#2A2A30"),
-        ["Brush.ButtonDisabled"] = Brush("#26262B"),
+        ["Brush.ButtonBackground"] = Brush("#23262C"),
+        ["Brush.ButtonHover"] = Brush("#2B2F37"),
+        ["Brush.ButtonPressed"] = Brush("#1E2127"),
+        ["Brush.ButtonDisabled"] = Brush("#1C1F24"),
 
-        // Status colors (readable on dark)
-        ["Brush.StatusBlue"] = Brush("#60A5FA"),
-        ["Brush.StatusGreen"] = Brush("#4ADE80"),
-        ["Brush.StatusRed"] = Brush("#F87171"),
-        ["Brush.StatusGray"] = Brush("#9CA3AF"),
+        ["Brush.SegmentBackground"] = Brush("#121418"),
+        ["Brush.SegmentSelected"] = Brush("#2A2E37"),
+        ["Brush.SelectedBackground"] = Brush("#1F2C42"),
+        ["Brush.ScrollThumb"] = Brush("#363B45"),
+
+        ["Brush.StatusBlue"] = Brush("#6FA8FF"),
+        ["Brush.StatusGreen"] = Brush("#4CC38A"),
+        ["Brush.StatusRed"] = Brush("#F07171"),
+        ["Brush.StatusGray"] = Brush("#8C93A0"),
     };
 
     private static Dictionary<string, SolidColorBrush> CreateLightBrushes() => new()
     {
-        ["Brush.WindowBackground"] = Brush("#FAFAFB"),
-        ["Brush.SurfaceBackground"] = Brush("#F3F4F6"),
+        ["Brush.WindowBackground"] = Brush("#F5F6F8"),
+        ["Brush.SurfaceBackground"] = Brush("#FFFFFF"),
         ["Brush.ControlBackground"] = Brush("#FFFFFF"),
-        ["Brush.ControlBorder"] = Brush("#D1D5DB"),
+        ["Brush.ControlBorder"] = Brush("#D9DDE4"),
         ["Brush.ListBackground"] = Brush("#FFFFFF"),
-        ["Brush.ProgressBackground"] = Brush("#E5E7EB"),
-        ["Brush.DropZoneBackground"] = Brush("#EFF6FF"),
+        ["Brush.ProgressBackground"] = Brush("#E7EAEF"),
+        ["Brush.DropZoneBackground"] = Brush("#F3F7FF"),
+        ["Brush.DropZoneBorder"] = Brush("#C3D7F5"),
 
-        ["Brush.TextPrimary"] = Brush("#1F2937"),
-        ["Brush.TextSecondary"] = Brush("#6B7280"),
-        ["Brush.TextDisabled"] = Brush("#9CA3AF"),
+        ["Brush.TextPrimary"] = Brush("#1B1F27"),
+        ["Brush.TextSecondary"] = Brush("#5E6673"),
+        ["Brush.TextDisabled"] = Brush("#9AA3B0"),
 
-        ["Brush.Accent"] = Brush("#2563EB"),
+        ["Brush.Accent"] = Brush("#2F6FEB"),
+        ["Brush.AccentHover"] = Brush("#2861D2"),
+        ["Brush.AccentPressed"] = Brush("#2153B4"),
+        ["Brush.OnAccent"] = Brush("#FFFFFF"),
 
-        ["Brush.ButtonBackground"] = Brush("#F3F4F6"),
-        ["Brush.ButtonHover"] = Brush("#E5E7EB"),
-        ["Brush.ButtonPressed"] = Brush("#D1D5DB"),
-        ["Brush.ButtonDisabled"] = Brush("#F1F1F3"),
+        ["Brush.ButtonBackground"] = Brush("#FFFFFF"),
+        ["Brush.ButtonHover"] = Brush("#F1F3F7"),
+        ["Brush.ButtonPressed"] = Brush("#E5E9F0"),
+        ["Brush.ButtonDisabled"] = Brush("#F1F3F6"),
 
-        // Status colors (readable on light)
-        ["Brush.StatusBlue"] = Brush("#2563EB"),
-        ["Brush.StatusGreen"] = Brush("#16A34A"),
-        ["Brush.StatusRed"] = Brush("#DC2626"),
-        ["Brush.StatusGray"] = Brush("#9CA3AF"),
+        ["Brush.SegmentBackground"] = Brush("#EAEDF2"),
+        ["Brush.SegmentSelected"] = Brush("#FFFFFF"),
+        ["Brush.SelectedBackground"] = Brush("#EAF1FE"),
+        ["Brush.ScrollThumb"] = Brush("#C6CDD8"),
+
+        ["Brush.StatusBlue"] = Brush("#2F6FEB"),
+        ["Brush.StatusGreen"] = Brush("#17A05E"),
+        ["Brush.StatusRed"] = Brush("#DC3D3D"),
+        ["Brush.StatusGray"] = Brush("#7A8494"),
     };
 
     private static SolidColorBrush Brush(string hex)

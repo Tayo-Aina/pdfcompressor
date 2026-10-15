@@ -102,6 +102,9 @@ public partial class MainWindow : Window
         InitializeComponent();
         UpdateThemeButtonLabel();
         FileList.ItemsSource = _files;
+        _files.CollectionChanged += (_, _) => UpdateEmptyState();
+        UpdateEmptyState();
+        ThemeManager.ApplyWindowIcon(this);
         ApplyModeUi();
 
         _resultDir = Path.Combine(Path.GetTempPath(), "PdfCompressorResults");
@@ -278,6 +281,7 @@ public partial class MainWindow : Window
         _singleResultPath = null;
         Progress.Value = 0;
         Progress.IsIndeterminate = false;
+        Progress.Visibility = Visibility.Collapsed;
         SaveButton.IsEnabled = false;
     }
 
@@ -303,6 +307,8 @@ public partial class MainWindow : Window
         }
         else
         {
+            // The progress bar only appears while a job is running (or after one finished).
+            Progress.Visibility = Visibility.Visible;
             SaveButton.IsEnabled = false;
         }
     }
@@ -348,11 +354,37 @@ public partial class MainWindow : Window
     {
         ThemeManager.Toggle();
         UpdateThemeButtonLabel();
+        ThemeManager.ApplyWindowIcon(this);
+        ThemeManager.ApplyWindowChrome(this);
     }
 
+    /// <summary>Keeps the toggle glyph/label and the native window chrome in step with the theme.</summary>
     private void UpdateThemeButtonLabel()
     {
-        ThemeButton.Content = ThemeManager.IsDark ? "☀ Light" : "☾ Dark";
+        // The button advertises the theme you would switch to.
+        ThemeLabel.Text = ThemeManager.IsDark ? "Light" : "Dark";
+        ThemeGlyph.Data = Geometry.Parse(ThemeManager.IsDark ? SunGeometry : MoonGeometry);
+    }
+
+    /// <summary>Sun / moon glyphs for the theme toggle, drawn in a 14×14 box.</summary>
+    private const string SunGeometry =
+        "M 9.6,7 A 2.6,2.6 0 1 1 4.4,7 A 2.6,2.6 0 1 1 9.6,7 Z " +
+        "M 7,1.2 L 7,2.6 M 7,11.4 L 7,12.8 M 1.2,7 L 2.6,7 M 11.4,7 L 12.8,7 " +
+        "M 2.9,2.9 L 3.9,3.9 M 10.1,10.1 L 11.1,11.1 M 11.1,2.9 L 10.1,3.9 M 3.9,10.1 L 2.9,11.1";
+
+    private const string MoonGeometry =
+        "M 12.25,7.46 A 5.25,5.25 0 1 1 6.54,1.75 A 4.08,4.08 0 0 0 12.25,7.46 Z";
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        ThemeManager.ApplyWindowChrome(this);
+    }
+
+    /// <summary>Shows the placeholder text whenever the file list is empty.</summary>
+    private void UpdateEmptyState()
+    {
+        EmptyHint.Visibility = _files.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>Looks up a brush from Application resources, or falls back to a safe gray.</summary>

@@ -6,21 +6,20 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
-        FontFamily="Segoe UI" FontSize="13"
-        Background="{DynamicResource Brush.WindowBackground}">
+        UseLayoutRounding="True" SnapsToDevicePixels="True"
+        FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="13"
+        Background="{DynamicResource Brush.WindowBackground}"
+        Foreground="{DynamicResource Brush.TextPrimary}">
     <StackPanel Margin="20">
         <TextBlock x:Name="PromptText"
                    Text="Name the folder where the compressed PDFs will be saved:"
                    TextWrapping="Wrap" Margin="0,0,0,12"
                    Foreground="{DynamicResource Brush.TextPrimary}"/>
-        <TextBox x:Name="NameBox" Padding="6,5" MaxLength="120"
-                 Background="{DynamicResource Brush.ControlBackground}"
-                 Foreground="{DynamicResource Brush.TextPrimary}"
-                 BorderBrush="{DynamicResource Brush.ControlBorder}"
-                 CaretBrush="{DynamicResource Brush.TextPrimary}"/>
+        <TextBox x:Name="NameBox" MaxLength="120"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-            <Button Content="Cancel" Width="80" Padding="0,5" IsCancel="True"/>
-            <Button Content="Create" Width="80" Padding="0,5" Margin="8,0,0,0"
+            <Button Content="Cancel" Width="88" Padding="0,6" IsCancel="True"/>
+            <Button Content="Create" Width="88" Padding="0,6" Margin="8,0,0,0"
+                    Style="{StaticResource PrimaryButton}"
                     IsDefault="True" Click="CreateButton_Click"/>
         </StackPanel>
     </StackPanel>

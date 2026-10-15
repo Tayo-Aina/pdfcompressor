@@ -2,269 +2,358 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="PdfCompressor"
-        Height="600" Width="680"
-        MinHeight="480" MinWidth="560"
+        Height="660" Width="720"
+        MinHeight="560" MinWidth="640"
         WindowStartupLocation="CenterScreen"
-        FontFamily="Segoe UI" FontSize="13"
-        Background="{DynamicResource Brush.WindowBackground}">
+        UseLayoutRounding="True" SnapsToDevicePixels="True"
+        FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="13"
+        Background="{DynamicResource Brush.WindowBackground}"
+        Foreground="{DynamicResource Brush.TextPrimary}">
     <Window.Resources>
-        <!-- Segmented-look toggle used for the mode selector (Compress / Images → PDF / Merge). -->
-        <Style x:Key="ModeButton" TargetType="ToggleButton">
-            <Setter Property="Padding" Value="16,7"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
-            <Setter Property="Background" Value="{DynamicResource Brush.ButtonBackground}"/>
-            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.ControlBorder}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource Brush.ButtonHover}"/>
-                </Trigger>
-                <Trigger Property="IsChecked" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource Brush.Accent}"/>
-                    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
-                    <Setter Property="Foreground" Value="#FFFFFF"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
 
-        <!-- Shared dark-styled picker combo box (preset / page-size selectors). -->
-        <Style x:Key="PickerComboBox" TargetType="ComboBox">
-            <Setter Property="Width" Value="170"/>
-            <Setter Property="Margin" Value="8,0,0,0"/>
-            <Setter Property="Background" Value="{DynamicResource Brush.ControlBackground}"/>
-            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.ControlBorder}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="ComboBoxItem">
-                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
-                        <Setter Property="Background" Value="{DynamicResource Brush.ControlBackground}"/>
-                        <Setter Property="Padding" Value="8,5"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource Brush.ButtonHover}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Setter.Value>
-            </Setter>
+        <!-- Segmented control: the mode picker (Compress / Images → PDF / Merge). -->
+        <Style x:Key="SegmentButton" TargetType="ToggleButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton x:Name="toggle"
-                                          Focusable="False"
-                                          ClickMode="Press"
-                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                          Content="{TemplateBinding SelectionBoxItem}"
-                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                          ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
-                                          Foreground="{TemplateBinding Foreground}"
-                                          Background="{TemplateBinding Background}"
-                                          BorderBrush="{TemplateBinding BorderBrush}"
-                                          BorderThickness="{TemplateBinding BorderThickness}">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border x:Name="bd"
-                                                Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="4">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <ContentPresenter
-                                                      Content="{TemplateBinding Content}"
-                                                      ContentTemplate="{TemplateBinding ContentTemplate}"
-                                                      TextElement.Foreground="{TemplateBinding Foreground}"
-                                                      VerticalAlignment="Center" Margin="8,0,0,0"/>
-                                                <Path Grid.Column="1"
-                                                      Data="M 0 0 L 4 4 L 8 0 Z"
-                                                      Fill="{DynamicResource Brush.TextSecondary}"
-                                                      VerticalAlignment="Center"
-                                                      Margin="0,0,8,0"/>
-                                            </Grid>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.ButtonHover}"/>
-                                            </Trigger>
-                                            <Trigger Property="IsChecked" Value="True">
-                                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.ButtonPressed}"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-                            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
-                                   AllowsTransparency="True" PopupAnimation="Slide">
-                                <Border x:Name="dropDownBorder"
-                                        Background="{DynamicResource Brush.SurfaceBackground}"
-                                        BorderBrush="{DynamicResource Brush.ControlBorder}"
-                                        BorderThickness="1" CornerRadius="4"
-                                        MinWidth="{TemplateBinding ActualWidth}"
-                                        MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                        <ItemsPresenter/>
-                                    </ScrollViewer>
-                                </Border>
-                            </Popup>
-                        </Grid>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsDropDownOpen" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource Brush.ButtonPressed}"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.SegmentSelected}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextDisabled}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
     </Window.Resources>
-    <Grid Margin="16">
+
+    <Grid Margin="20,16,20,16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>  <!-- header -->
+            <RowDefinition Height="Auto"/>  <!-- mode picker -->
+            <RowDefinition Height="Auto"/>  <!-- drop zone -->
+            <RowDefinition Height="Auto"/>  <!-- toolbar -->
+            <RowDefinition Height="*"/>     <!-- file list -->
+            <RowDefinition Height="Auto"/>  <!-- options + actions -->
+            <RowDefinition Height="Auto"/>  <!-- progress + status -->
         </Grid.RowDefinitions>
 
-        <!-- Mode selector: pick what to do with the files below -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <ToggleButton x:Name="CompressModeButton"
-                          Style="{StaticResource ModeButton}"
-                          Content="🗜 Compress PDFs"
-                          IsChecked="True"
-                          Checked="ModeButton_Checked"
-                          Click="ModeButton_Click"/>
-            <ToggleButton x:Name="ImagesModeButton"
-                          Style="{StaticResource ModeButton}"
-                          Content="🖼 Images → PDF"
-                          Checked="ModeButton_Checked"
-                          Click="ModeButton_Click"/>
-            <ToggleButton x:Name="MergeModeButton"
-                          Style="{StaticResource ModeButton}"
-                          Content="📄 Merge PDFs"
-                          Checked="ModeButton_Checked"
-                          Click="ModeButton_Click"/>
-        </StackPanel>
+        <!-- ============ Header ============ -->
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Drop zone -->
-        <Border x:Name="DropZone"
-                Grid.Row="1"
-                Height="130" Margin="0,0,0,12"
-                BorderBrush="{DynamicResource Brush.Accent}" BorderThickness="2" CornerRadius="10"
-                Background="{DynamicResource Brush.DropZoneBackground}"
-                AllowDrop="True"
-                DragOver="DropZone_DragOver"
-                Drop="DropZone_Drop"
-                MouseLeftButtonUp="DropZone_MouseLeftButtonUp"
-                Cursor="Hand">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="📄" FontSize="30" HorizontalAlignment="Center"/>
-                <TextBlock x:Name="DropText"
-                           Text="Drag &amp; drop PDF files here"
-                           FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"
-                           Foreground="{DynamicResource Brush.TextPrimary}" Margin="0,6,0,0"/>
-                <TextBlock x:Name="DropHint"
-                           Text="or click the zone to browse · you can also add a whole folder below"
-                           FontSize="11" HorizontalAlignment="Center"
-                           Foreground="{DynamicResource Brush.TextSecondary}" Margin="0,4,0,0"/>
+            <!-- App mark (matches the application icon) -->
+            <Border Width="26" Height="26" CornerRadius="6"
+                    Background="{DynamicResource Brush.Accent}"
+                    VerticalAlignment="Center">
+                <Viewbox Margin="6">
+                    <Path Stroke="{DynamicResource Brush.OnAccent}"
+                          StrokeThickness="1.9"
+                          StrokeLineJoin="Round"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          Data="M 2.5,1.5 L 8,6 L 13.5,1.5 M 2.5,14.5 L 8,10 L 13.5,14.5"/>
+                </Viewbox>
+            </Border>
+
+            <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="PDF Compressor" FontSize="14.5" FontWeight="SemiBold"/>
+                <TextBlock Text="Compress, merge and convert — all offline"
+                           FontSize="11.5" Margin="0,1,0,0"
+                           Foreground="{DynamicResource Brush.TextSecondary}"/>
+            </StackPanel>
+
+            <Button x:Name="ThemeButton"
+                    Grid.Column="2"
+                    Style="{StaticResource GhostButton}"
+                    VerticalAlignment="Center"
+                    ToolTip="Switch between light and dark theme"
+                    Click="ThemeButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Path x:Name="ThemeGlyph"
+                          VerticalAlignment="Center"
+                          Fill="{x:Null}"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                          StrokeThickness="1.5"
+                          StrokeLineJoin="Round"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          Data="M 9.6,7 A 2.6,2.6 0 1 1 4.4,7 A 2.6,2.6 0 1 1 9.6,7 Z M 7,1.2 L 7,2.6 M 7,11.4 L 7,12.8 M 1.2,7 L 2.6,7 M 11.4,7 L 12.8,7 M 2.9,2.9 L 3.9,3.9 M 10.1,10.1 L 11.1,11.1 M 11.1,2.9 L 10.1,3.9 M 3.9,10.1 L 2.9,11.1"/>
+                    <TextBlock x:Name="ThemeLabel" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- ============ Mode picker ============ -->
+        <Border Grid.Row="1"
+                HorizontalAlignment="Left"
+                Margin="0,0,0,14"
+                Padding="3"
+                CornerRadius="6"
+                Background="{DynamicResource Brush.SegmentBackground}">
+            <StackPanel Orientation="Horizontal">
+                <ToggleButton x:Name="CompressModeButton"
+                              Style="{StaticResource SegmentButton}"
+                              IsChecked="True"
+                              Checked="ModeButton_Checked"
+                              Click="ModeButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <Path VerticalAlignment="Center"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                              StrokeThickness="1.6"
+                              StrokeLineJoin="Round"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Data="M 2,1.8 L 8,6.4 L 14,1.8 M 2,14.2 L 8,9.6 L 14,14.2"/>
+                        <TextBlock Text="Compress" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ToggleButton>
+
+                <ToggleButton x:Name="ImagesModeButton"
+                              Style="{StaticResource SegmentButton}"
+                              Margin="4,0,0,0"
+                              Checked="ModeButton_Checked"
+                              Click="ModeButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <Path VerticalAlignment="Center"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                              StrokeThickness="1.6"
+                              StrokeLineJoin="Round"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Data="M 2.5,2.5 L 13.5,2.5 L 13.5,13.5 L 2.5,13.5 Z M 2.5,10.8 L 6.2,7.2 L 8.6,9.6 L 10.6,7.6 L 13.5,10.5 M 10.4,5.3 A 1.1,1.1 0 1 1 12.6,5.3 A 1.1,1.1 0 1 1 10.4,5.3"/>
+                        <TextBlock Text="Images → PDF" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ToggleButton>
+
+                <ToggleButton x:Name="MergeModeButton"
+                              Style="{StaticResource SegmentButton}"
+                              Margin="4,0,0,0"
+                              Checked="ModeButton_Checked"
+                              Click="ModeButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <Path VerticalAlignment="Center"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                              StrokeThickness="1.6"
+                              StrokeLineJoin="Round"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Data="M 2.5,2.5 L 9.5,2.5 L 9.5,9.5 L 2.5,9.5 Z M 6.5,6.5 L 13.5,6.5 L 13.5,13.5 L 6.5,13.5 Z"/>
+                        <TextBlock Text="Merge PDFs" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ToggleButton>
             </StackPanel>
         </Border>
 
-        <!-- Buttons -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button x:Name="AddFilesButton" Content="Add PDF file(s)…" Padding="12,6" Click="AddFilesButton_Click"/>
-            <Button x:Name="AddFolderButton" Content="Add folder…" Padding="12,6" Margin="8,0,0,0" Click="AddFolderButton_Click"/>
-            <Button x:Name="ClearButton" Content="Clear list" Padding="12,6" Margin="8,0,0,0" Click="ClearButton_Click"/>
-            <Button x:Name="MoveUpButton" Content="↑ Move up" Padding="12,6" Margin="8,0,0,0"
-                    Visibility="Collapsed" Click="MoveUpButton_Click"/>
-            <Button x:Name="MoveDownButton" Content="↓ Move down" Padding="12,6" Margin="8,0,0,0"
-                    Visibility="Collapsed" Click="MoveDownButton_Click"/>
-            <Button x:Name="ThemeButton" Content="☾ Dark" Padding="12,6" Margin="8,0,0,0" Click="ThemeButton_Click"/>
+        <!-- ============ Drop zone ============ -->
+        <Border x:Name="DropZone"
+                Grid.Row="2"
+                Height="128"
+                CornerRadius="6"
+                Background="{DynamicResource Brush.DropZoneBackground}"
+                AllowDrop="True"
+                Cursor="Hand"
+                Focusable="False"
+                DragOver="DropZone_DragOver"
+                Drop="DropZone_Drop"
+                MouseLeftButtonUp="DropZone_MouseLeftButtonUp">
+            <Grid>
+                <Rectangle RadiusX="6" RadiusY="6"
+                           Margin="1"
+                           Stroke="{DynamicResource Brush.DropZoneBorder}"
+                           StrokeThickness="1.5"
+                           StrokeDashArray="4 3"
+                           IsHitTestVisible="False"/>
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <!-- Page with inward chevrons: "files go in" -->
+                    <Grid Width="44" Height="44" HorizontalAlignment="Center">
+                        <Rectangle Width="30" Height="38" RadiusX="4" RadiusY="4"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Stroke="{DynamicResource Brush.Accent}" StrokeThickness="1.8"/>
+                        <Path HorizontalAlignment="Center" VerticalAlignment="Center"
+                              Stroke="{DynamicResource Brush.Accent}"
+                              StrokeThickness="1.8"
+                              StrokeLineJoin="Round"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Data="M 14,12.5 L 22,20 L 30,12.5 M 14,31.5 L 22,24 L 30,31.5"/>
+                    </Grid>
+                    <TextBlock x:Name="DropText"
+                               Text="Drag &amp; drop PDF files here"
+                               FontSize="15.5" FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource Brush.TextPrimary}"
+                               Margin="0,8,0,0"/>
+                    <TextBlock x:Name="DropHint"
+                               Text="or click the zone to browse · you can also add a whole folder below"
+                               FontSize="11.5" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource Brush.TextSecondary}"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ============ Toolbar ============ -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,12,0,6">
+            <Button x:Name="AddFilesButton" Style="{StaticResource GhostButton}"
+                    Content="Add PDF file(s)…" Click="AddFilesButton_Click"/>
+            <Button x:Name="AddFolderButton" Style="{StaticResource GhostButton}"
+                    Content="Add folder…" Margin="4,0,0,0" Click="AddFolderButton_Click"/>
+            <Button x:Name="ClearButton" Style="{StaticResource GhostButton}"
+                    Content="Clear list" Margin="4,0,0,0" Click="ClearButton_Click"/>
+            <Button x:Name="MoveUpButton" Style="{StaticResource GhostButton}"
+                    Content="↑ Move up" Margin="4,0,0,0" Visibility="Collapsed"
+                    Click="MoveUpButton_Click"/>
+            <Button x:Name="MoveDownButton" Style="{StaticResource GhostButton}"
+                    Content="↓ Move down" Margin="4,0,0,0" Visibility="Collapsed"
+                    Click="MoveDownButton_Click"/>
         </StackPanel>
 
-        <!-- File list -->
-        <ListBox x:Name="FileList"
-                 Grid.Row="3"
-                 Margin="0,0,0,12"
-                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                 Background="{DynamicResource Brush.ListBackground}"
-                 BorderBrush="{DynamicResource Brush.ControlBorder}" BorderThickness="1"
-                 Foreground="{DynamicResource Brush.TextPrimary}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Margin="2,3">
-                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource Brush.TextPrimary}"/>
-                        <TextBlock Text="{Binding Size}" Margin="10,0,0,0"
-                                   Foreground="{DynamicResource Brush.TextSecondary}"/>
-                        <TextBlock Text="{Binding Status}" Margin="14,0,0,0"
-                                   Foreground="{Binding StatusBrush}"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <!-- ============ File list ============ -->
+        <Border Grid.Row="4"
+                CornerRadius="6"
+                Background="{DynamicResource Brush.ListBackground}"
+                BorderBrush="{DynamicResource Brush.ControlBorder}"
+                BorderThickness="1">
+            <Grid>
+                <ListBox x:Name="FileList" Padding="4" Margin="0,4,0,4">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-        <!-- Controls row (contents depend on the selected mode) -->
-        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,12">
+                                <!-- Small page glyph -->
+                                <Path Grid.Column="0"
+                                      VerticalAlignment="Center"
+                                      Fill="{DynamicResource Brush.TextSecondary}"
+                                      Opacity="0.85"
+                                      Data="M 9.5,1 L 3.6,1 A 1.6,1.6 0 0 0 2,2.6 L 2,13.4 A 1.6,1.6 0 0 0 3.6,15 L 12.4,15 A 1.6,1.6 0 0 0 14,13.4 L 14,5.5 Z"/>
 
-            <!-- Compress mode: preset picker -->
-            <StackPanel x:Name="PresetPanel" Orientation="Horizontal">
-            <TextBlock Text="Preset:" VerticalAlignment="Center"
-                       Foreground="{DynamicResource Brush.TextPrimary}"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Name}"
+                                           Margin="10,0,0,0"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding Path}"/>
 
-            <ComboBox x:Name="PresetBox" Style="{StaticResource PickerComboBox}" SelectedIndex="1">
-                <ComboBoxItem Content="Screen (smallest file)"/>
-                <ComboBoxItem Content="Ebook (balanced)"/>
-                <ComboBoxItem Content="Printer (best quality)"/>
-            </ComboBox>
-            </StackPanel>
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding Size}"
+                                           Margin="12,0,0,0"
+                                           MinWidth="58"
+                                           TextAlignment="Right"
+                                           VerticalAlignment="Center"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource Brush.TextSecondary}"/>
 
-            <!-- Images → PDF mode: page sizing picker -->
-            <StackPanel x:Name="PageSizePanel" Orientation="Horizontal" Visibility="Collapsed">
-                <TextBlock Text="Pages:" VerticalAlignment="Center"
-                           Foreground="{DynamicResource Brush.TextPrimary}"/>
-                <ComboBox x:Name="PageSizeBox" Style="{StaticResource PickerComboBox}" SelectedIndex="0">
-                    <ComboBoxItem Content="Fit A4 (recommended)"/>
-                    <ComboBoxItem Content="Fit US Letter"/>
-                    <ComboBoxItem Content="Actual size (96 dpi)"/>
-                </ComboBox>
-            </StackPanel>
+                                <StackPanel Grid.Column="3" Orientation="Horizontal"
+                                            Margin="16,0,0,0" VerticalAlignment="Center">
+                                    <Ellipse Width="6" Height="6" VerticalAlignment="Center"
+                                             Fill="{Binding StatusBrush}"/>
+                                    <TextBlock Text="{Binding Status}"
+                                               Margin="7,0,0,0"
+                                               VerticalAlignment="Center"
+                                               FontSize="12"
+                                               Foreground="{Binding StatusBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
 
-            <!-- Mode-specific action buttons -->
-            <Button x:Name="CompressButton" Content="Compress" Padding="20,7" Margin="16,0,0,0"
-                    FontWeight="Bold" Click="CompressButton_Click"/>
-            <Button x:Name="CreatePdfButton" Content="Create PDF" Padding="20,7" Margin="16,0,0,0"
-                    FontWeight="Bold" Visibility="Collapsed" Click="CreatePdfButton_Click"/>
-            <Button x:Name="MergeButton" Content="Merge" Padding="20,7" Margin="16,0,0,0"
-                    FontWeight="Bold" Visibility="Collapsed" Click="MergeButton_Click"/>
-            <Button x:Name="SaveButton" Content="Save…" Padding="20,7" Margin="10,0,0,0"
-                    IsEnabled="False" FontWeight="Bold" Click="SaveButton_Click"/>
-        </StackPanel>
+                <TextBlock x:Name="EmptyHint"
+                           Text="Nothing here yet — drop files above or use Add files."
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           MaxWidth="320" TextAlignment="Center" TextWrapping="Wrap"
+                           FontSize="12.5"
+                           Foreground="{DynamicResource Brush.TextSecondary}"/>
+            </Grid>
+        </Border>
 
-        <!-- Progress + status -->
-        <Grid Grid.Row="5">
+        <!-- ============ Options + actions ============ -->
+        <Grid Grid.Row="5" Margin="0,14,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel>
-                <ProgressBar x:Name="Progress" Height="18" Margin="0,0,0,6"
-                             Foreground="{DynamicResource Brush.Accent}"
-                             Background="{DynamicResource Brush.ProgressBackground}"/>
-                <TextBlock x:Name="StatusText" Text="Drop PDFs or add files to begin."
-                           Foreground="{DynamicResource Brush.TextSecondary}" TextWrapping="Wrap"/>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <!-- Compress mode: preset picker -->
+                <StackPanel x:Name="PresetPanel" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Preset" VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush.TextSecondary}"/>
+                    <ComboBox x:Name="PresetBox" Width="200" Margin="8,0,0,0" SelectedIndex="1">
+                        <ComboBoxItem Content="Screen (smallest file)"/>
+                        <ComboBoxItem Content="Ebook (balanced)"/>
+                        <ComboBoxItem Content="Printer (best quality)"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Images → PDF mode: page sizing picker -->
+                <StackPanel x:Name="PageSizePanel" Orientation="Horizontal" VerticalAlignment="Center"
+                            Visibility="Collapsed">
+                    <TextBlock Text="Page size" VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush.TextSecondary}"/>
+                    <ComboBox x:Name="PageSizeBox" Width="200" Margin="8,0,0,0" SelectedIndex="0">
+                        <ComboBoxItem Content="Fit A4 (recommended)"/>
+                        <ComboBoxItem Content="Fit US Letter"/>
+                        <ComboBoxItem Content="Actual size (96 dpi)"/>
+                    </ComboBox>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="CompressButton" Style="{StaticResource PrimaryButton}"
+                        Content="Compress" Click="CompressButton_Click"/>
+                <Button x:Name="CreatePdfButton" Style="{StaticResource PrimaryButton}"
+                        Content="Create PDF" Visibility="Collapsed" Click="CreatePdfButton_Click"/>
+                <Button x:Name="MergeButton" Style="{StaticResource PrimaryButton}"
+                        Content="Merge" Visibility="Collapsed" Click="MergeButton_Click"/>
+                <Button x:Name="SaveButton" Content="Save…" Margin="8,0,0,0"
+                        Padding="20,7" FontWeight="SemiBold" IsEnabled="False"
+                        Click="SaveButton_Click"/>
             </StackPanel>
         </Grid>
+
+        <!-- ============ Progress + status ============ -->
+        <StackPanel Grid.Row="6" Margin="0,14,0,0">
+            <ProgressBar x:Name="Progress" Margin="0,0,0,8"/>
+            <TextBlock x:Name="StatusText"
+                       Text="Drop PDFs or add files to begin."
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       Foreground="{DynamicResource Brush.TextSecondary}"/>
+        </StackPanel>
     </Grid>
 </Window>
